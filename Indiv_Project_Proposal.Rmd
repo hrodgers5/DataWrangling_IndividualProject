@@ -1,0 +1,38 @@
+---
+title: "Individual Project Proposal"
+author: "Hannah Rodgers"
+output:
+  pdf_document: default
+  html_document: default
+urlcolor: blue
+bibliography: proposal_bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview of Goals
+
+  My graduate research focuses on how soil health and soil microbiology influence long-term sustainability in semiarid wheat systems. Wheat is one of the most important crops worldwide, yet the semiarid landscapes where it is primarily grown are particularly vulnerable to climate change and land degradation [@asseng2015rising; @assessment2018fourth]. In particular, the traditional wheat-fallow system practiced throughout the High Plains ecoregion inefficiently stores water, depletes soil fertility, and has a high potential for erosion, pushing farmers and researchers to search for economical ways to build long-term soil health [@norton2012loss; @kaur2015effects]. 
+  
+   Soils with an active microbiome are critical for sustainable and resilient food production. Agriculture impacts microbial activity through practices such as crop rotation, fallowing, tillage, and fertilization, though these effects can vary depending on environmental factors such as climate and soil type [@lehman2015soil]. Soil microorganisms are sensitive indicators of changing soil health, and can help evaluate the long-term sustainability of land management practices [@rodgers2021effects]. However, there are gaps in our understanding of how chemical, physical, and biological soil properties influence soil microbiology, as well as to how soil microbial properties should be interpreted, especially in semiarid systems. Specifically, this project will use data collected in semiarid grain systems in the Wyoming High Plains to look for correlations between soil microbiology and other, well-established soil health indicators in order to better understand the relationship between soil microbiology and agricultural sustainability in these systems. 
+
+# Overview of Datasets
+
+  I plan to use datasets from my own research on soil health in semiarid wheat systems. These datasets include soil health and management data on plots from several agricultural systems. This includes data on soil physical properties (such as aggregate stability abd bulk density), soil chemical properties (such as total organic matter, labile carbon and nitrogen pools, and pH) and soil microbiology (enzyme activity, microbial biomass, and microbial community composition). This data is mainly in a tidy format, where each row is a plot and each column is a variable describing some soil property.
+  I hope to merge data from different projects, then separate that dataset into different relational databases dealing with different aspects of the plot (sampling and site information, soil physical and chemical properties, and soil microbiology). In analyzing this data, I forsee challenges in dealing with missing values, making sure the keys match exactly between datasets, and ultimately selecting which data and plots to include in my analysis.
+  
+```{r dataset}
+#Here is one dataset that I plan to use
+soil_data <- readxl::read_xlsx('soil_data_OREI.xlsx')
+head(soil_data)
+```
+
+# Proposed Workflow
+
+  These datasets will need to be loaded into R and tidied (using tidyverse packages), and then visualized (using *ggplot2* and *plotly*). Specifically, I will be looking for correlations between microbial data and labile carbon/nitrogen pools, which indicate soil health, and displaying those relationships.
+  First, I will use functions from tidyverse, especially merge, mutate, and select. I will *merge* datasets from different projects, then *split* that dataframe into relational databases dealing with different aspects of the data, to make them easier to work with. I will use the *mutate* function to calculate new variables, such as the ratio of fungi to bacteria or labile to total carbon.
+  I will first analyze my dataset using the *corr* package, which explores correlations between variables in large datasets. Once I find some interesting correlations between microbial properties and soil health variables, I will *select* my variables of interest. Lastly, I will visualize those relationships using interactive scatterplots from *plotly* and save them using *patchwork* and *htmlwidgets*.
+  
+# References
