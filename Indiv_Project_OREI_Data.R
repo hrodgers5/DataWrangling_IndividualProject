@@ -15,33 +15,34 @@ OREI_treatments <- read_excel("OREI_05.2021.xlsx", sheet = "Treatment_Data_2021"
 OREI_enzymes <- read_excel("OREI_05.2021.xlsx", sheet = "Enzymes")
 OREI_PLFA <- read_excel("OREI_05.2021.xlsx", sheet = "PLFAs")
 
-#merge the sheets
-OREI_all <- merge(OREI_soil, OREI_treatments, OREI_enzymes, OREI_PLFA, by = Sample_ID)
-
 #use this sheet to check on units
 units <- t(read_excel("OREI_05.2021.xlsx", sheet = "Units"))
 
-#change characters to factor
-OREI_treatments <- OREI_treatments %>% 
-  mutate(Compost_Rate = as.factor(Compost_Rate)) %>% 
+#merge the sheets
+OREI_all <- OREI_treatments %>% 
+  left_join(OREI_soil, by = 'Sample_ID') %>% 
+  left_join(OREI_enzymes, by = 'Sample_ID') %>% 
+  left_join(OREI_PLFA, by = 'Sample_ID')
+
+#remove some unwanted columns, then filter to just keep the wheat phase and no IF
+OREI_all <- OREI_all %>% 
+  filter(Rotation == "wheat", Treatment != "fertilizer") %>% 
+  select(-PER1, -ID, -InorganicC, -Treatment, -Compost_Rate, 
+         -Crop, -Rotation, -H20, -BulkDensity) %>% 
   mutate(Compost_Year = as.factor(Compost_Year))
 
 #### CHECK THE REGRESSION ASSUMPTIONS ####
 
 #REMOVE OUTLIERS AND SAVE AS NEW DATASETS
-OREI_soil_no <- OREI_soil
-OREI_enzymes_no <- OREI_enzymes
-OREI_PLFA_no <- OREI_PLFA
+OREI_no_outliers <- OREI_all
 
 source("http://goo.gl/UUyEzD")
-outlierKD(OREI_enzymes_no, BX)
+outlierKD(OREI_no_outliers, WFPS)
 
-#outliers removed: 3 from BG, 2 CBH, 1 PHOS, 4 NAG, BX, AG, SUL, LAP, PER1
+#outliers removed: Yield 0, Tillers 0, Heads 0, WFPS, NO3, PMN, Porosity, Protein, POXC, DOC, DON, PMC, MBC_fumigated, MBN_fumigated, SOC, N, BG, CBH, PHOS, NAG, BX, AG, SUL, LAP, actinomycetes, gram_neg, gram_pos, AMF, sapro_fungi, total_MB, total_fungi, total_bacteria
 
 #save these no outlier files to disk
-write_xlsx(OREI_enzymes_no, "no_outliers/OREI_enzymes_no_outliers.xlsx")
-write_xlsx(OREI_PLFA_no, "no_outliers/OREI_PLFA_no_outliers.xlsx")
-write_xlsx(OREI_soil_no, "no_outliers/OREI_soil_no_outliers.xlsx")
+write_xlsx(OREI_no_outliers, "OREI_2021_no_outliers.xlsx")
 
 plot(y= OREI_2020$Porosity, x =OREI_2020$compost)
 
