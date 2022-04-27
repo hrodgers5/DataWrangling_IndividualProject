@@ -1,5 +1,7 @@
-#This R Script was written by Hannah Rodgers. It is used to clean up soil data to get ready for regression analysis.
+#This R Script was written by Hannah Rodgers. 
+#It is used to clean up and transform soil data to get ready for regression analysis.
 
+library(MASS)
 library(readxl)
 library(writexl)
 library(patchwork)
@@ -7,81 +9,140 @@ library(ggpubr)
 library(ggbiplot)
 library(tidyverse)
 
-####DATA CLEANUP####
-#read  files
+#### DATA IMPORT ####
 setwd("C:/Users/hanna/Desktop/GRAD PROJECTS/OREI")
 
+#read  files
 OREI_soil <- read_excel("OREI_05.2021.xlsx", sheet = "Soil_Data")
 OREI_treatments <- read_excel("OREI_05.2021.xlsx", sheet = "Treatment_Data_2021")
 OREI_enzymes <- read_excel("OREI_05.2021.xlsx", sheet = "Enzymes")
 OREI_PLFA <- read_excel("OREI_05.2021.xlsx", sheet = "PLFAs")
 
-#use this sheet to check on units
+#units 'cheat sheet'
 units <- t(read_excel("OREI_05.2021.xlsx", sheet = "Units"))
 
+#### DATA CLEANUP ####
 #merge the sheets
 OREI_all <- OREI_treatments %>% 
   left_join(OREI_soil, by = 'Sample_ID') %>% 
   left_join(OREI_enzymes, by = 'Sample_ID') %>% 
   left_join(OREI_PLFA, by = 'Sample_ID')
 
-#remove some unwanted columns, then filter to just keep the wheat phase and no IF
 OREI_all <- OREI_all %>% 
+#remove fallow phase and inorganic fertilized plots
   filter(Rotation == "wheat", Treatment != "fertilizer") %>% 
-  select(-PER1, -ID, -InorganicC, -Treatment, -Compost_Rate, 
+#remove unwanted variables
+ dplyr::select(-PER1, -ID, -InorganicC, -Treatment, -Compost_Rate, 
          -Crop, -Rotation, -H2O, -BulkDensity) %>% 
+#save compost year as a factor
   mutate(Compost_Year = as.factor(Compost_Year))
 
-#### CHECK THE REGRESSION ASSUMPTIONS ####
+#separate into the two groups
+OREI_2016 <- subset(OREI_all, Compost_Year != "2020")
+OREI_2020 <- subset(OREI_all, Compost_Year != "2016")
 
-#REMOVE OUTLIERS AND SAVE AS NEW DATASETS
-#I removed outliers if there were <4 outliers
-OREI_no_outliers <- OREI_all
+# CHECK REGRESSION ASSUMPTIONS #
+####1. REMOVE OUTLIERS ####
 
+#check each variable for outliers, and remove if <4
 source("http://goo.gl/UUyEzD")
-outlierKD(OREI_no_outliers, DON)
+outlierKD(OREI_2020, total_bacteria)
+no
+yes
 
-#DATA WITH NO OUTLIERS: Yield, Tillers, Heads, WFPS, Porosity, POXC, BG, LAP, gram_neg, sapro_fungi
+#removed outliers from 2016: yield, NO3, PMN, DON, MBC, CBH, PHOS, NAG, actino,  gram_pos, AMF, sapro_fungi, total_MB, total_fungi
 
-#DATA WITH >3 OUTLIERS, SO DIDN'T REMOVE: NO3 (5), DOC (4), DON (9), BX (4)
+#removed outliers from 2020: NO3, protein, MBC, MBN, SOC, N, NAG, BX, AG, SUL, 
 
-#DATA WITH OUTLIERS REMOVED: PMN (1), Protein (2), PMC (1), MBC_fumigated (3), MBN_fumigated (2), SOC (1), N (2), CBH (1), PHOS (1), NAG 2, AG (1), SUL (2),  actinomycetes (1), gram_pos (1), AMF (1), total_MB (1), total_fungi (1), total_bacteria (1)
+#save no_outlier file to disk, then read it back in for next session
+write_xlsx(OREI_2020, "OREI_2020_no_outliers.xlsx")
+write_xlsx(OREI_2016, "OREI_2016_no_outliers.xlsx")
 
-#save this no outlier file to disk
-write_xlsx(OREI_no_outliers, "OREI_2021_no_outliers.xlsx")
+OREI_2020 <- as.data.frame(read_excel("OREI_2020_no_outliers.xlsx"))
+OREI_2016 <- as.data.frame(read_excel("OREI_2016_no_outliers.xlsx"))
 
-#TASK 2: CHECK REGRESSION ASSUMPTIONS, AND TRANSFORM DATA TO BE NORMAL
+####2. CHECK FOR NORMALITY OF RESIDUALS ####
 
-#### Check regression assumptions. Transform data with non-normal residuals using boxcox, then save that in new dataframe.
+#this loop runs a linear model on compost ~ variable for each variable
+#it checks normality of the residuals and saves the p.value
 
-OREI_normal <- OREI_no_outliers
-#box cox
-library(MASS)
+p.vals <- list()
 
-mod <- lm(total_bacteria ~ compost, data = OREI_no_outliers)
-
-#test assumptions
-shapiro.test(mod$residuals)
-
-plot(mod$residuals)
-boxcox(mod)
-
-#normal residuals: Yield, Tillers, Heads, WFPS, Porosity, Protein, POXC, PMC, MBC_fum, MBN_fum, SOC, N, BG, CBH, AG, SUL, LAP, actinomycetes, gram_pos, AMF, sapro_fungi, total_MB, total_fungi, total_bacteria
-
-#non-normal residuals: NO3, PMN, DOC, DON, PHOS, NAG, BX, gram_neg
-
-#F-test for lack of fit (check linearity)
-
-F_test <- function(x) {
-  mod <- lm(x ~ compost, data = OREI_2020)
-  reduced<-lm(x ~ compost, data = OREI_2020)
-  full<-lm(x ~ poly(compost,2), data = OREI_2020)
-  anova(reduced, full)
+for (i in names(OREI_2016[,7:38])) {
+  mod <- lm(get(i) ~ compost, data = OREI_2016)
+  p.vals[[i]] <- (shapiro.test(mod$residuals))$p.value
 }
 
-F_test(OREI_2020$total_fungi)
+#OREI_2020 with non-normal (p<0.05): DOC, DON, PHOS, 
+#OREI_2016: only PHOS
 
+#to fix this, log transform non-normal ones using boxcox
 
-#next, check constancy of residuals (levene test? brown forsythe?) look at Liana's code
+#this function find the optimal box_cox transformation and returns the transformed data
+
+box_cox_transform <- function(v) {
+#calculates the boxcox plot and pulls out lambda
+  bc <- boxcox(v ~ compost, data = OREI_2016)
+  lambda <- bc$x[which.max(bc$y)]
+#transforms the data using lambda and saves it
+  v <- (v^lambda-1)/lambda
+  return(v)
+}
+
+#run the function on all non-normal variables
+OREI_2016$PHOS <- box_cox_transform(OREI_2016$PHOS)
+
+#test normality of new data
+p.vals.trans <- list()
+
+for (i in names(OREI_2016[,7:38])) {
+  mod <- lm(get(i) ~ compost, data = OREI_2016)
+  p.vals.trans[[i]] <- (shapiro.test(mod$residuals))$p.value
+}
+
+#everything is normal now! Save again:
+write_xlsx(OREI_2020, "OREI_2020_normal.xlsx")
+write_xlsx(OREI_2016, "OREI_2016_normal.xlsx")
+
+OREI_2020 <- as.data.frame(read_excel("OREI_2020_normal.xlsx"))
+OREI_2016 <- as.data.frame(read_excel("OREI_2016_normal.xlsx"))
+
+####3. F-test for lack of fit (checks linearity) ####
+
+#this function runs a linear and quadratic model for each variable, and tests whether they differ significantly
+F_test <- function(x) {
+  mod <- lm(x ~ compost, data = OREI_2016)
+  reduced<-lm(x ~ compost, data = OREI_2016)
+  full<-lm(x ~ poly(compost,2), data = OREI_2016)
+  return(anova(reduced, full)$"Pr(>F)")
+}
+
+#use sapply to run this function on each
+
+p.vals.F.test <- list()
+
+for (i in colnames(OREI_2016[,7:38])) {
+  p.vals.F.test[[i]] <- F_test(OREI_2016[[i]])
+}
+
+#differs: 2020 DOC, protein, porosity, WFPS
+#2016: all good!
+
+#####4. check constancy of residuals (levene test? brown forsythe?) look at Liana's code ####
 library(car)
 leveneTest(mod, compost)
+
+#### VISUALIZE DATA ####
+p1 <- ggplot(data= OREI_normal, aes(x = compost, y = DOC))+
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  stat_regline_equation() +
+  labs (title = 'One Year After Compost Application', x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
+
+p2 <- ggplot(data= OREI_normal, aes(compost, DOC)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  stat_regline_equation() +
+  labs (title = 'Five Years After Compost Application', x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
+
+p1 + p2 #& scale_y_continuous(limits = c(0, 375)) 
