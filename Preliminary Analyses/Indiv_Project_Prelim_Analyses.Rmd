@@ -4,9 +4,10 @@ author: "Hannah Rodgers"
 date: "4/27/2022"
 output: pdf_document
 bibliography: preliminary_bibliography.bib
+indent: TRUE
 ---
 
-## This R script is used to clean up and transform soil data to perform regression analysis.
+### This R script is used to clean up and transform soil data to perform regression analysis.
 
 # Overview of Goals
 
@@ -22,13 +23,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 #Load Packages
-```{r 1, echo=TRUE}
-library(MASS)
-library(readxl)
-library(writexl)
-library(patchwork)
-library(ggpubr)
-library(ggbiplot)
+```{r 1, message=FALSE}
+#library(MASS)
+#library(readxl)
+#library(writexl)
+#library(patchwork)
+#library(ggpubr)
+#library(ggbiplot)
 library(tidyverse)
 ```
 

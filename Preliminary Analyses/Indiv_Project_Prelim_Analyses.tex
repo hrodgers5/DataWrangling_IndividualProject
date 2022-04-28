@@ -1,0 +1,662 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\title{Individual Project Preliminary Analyses}
+\author{Hannah Rodgers}
+\date{4/27/2022}
+
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Individual Project Preliminary Analyses},
+  pdfauthor={Hannah Rodgers},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\begin{document}
+\maketitle
+
+\hypertarget{this-r-script-is-used-to-clean-up-and-transform-soil-data-to-perform-regression-analysis.}{%
+\subsubsection{This R script is used to clean up and transform soil data
+to perform regression
+analysis.}\label{this-r-script-is-used-to-clean-up-and-transform-soil-data-to-perform-regression-analysis.}}
+
+\hypertarget{overview-of-goals}{%
+\section{Overview of Goals}\label{overview-of-goals}}
+
+My research focuses on how soil health and soil microbiology influence
+long-term sustainability in semiarid wheat systems. Wheat is one of the
+most important crops worldwide, yet the semiarid landscapes where it is
+primarily grown are particularly vulnerable to climate change and land
+degradation (Asseng et al. 2015; USGCRP 2018). In particular, the
+traditional wheat-fallow system practiced throughout the High Plains
+ecoregion inefficiently stores water, depletes soil fertility, and has a
+high potential for erosion, pushing farmers and researchers to search
+for economical ways to build long-term soil health (Norton, Mukhwana,
+and Norton 2012; Kaur et al. 2015). Sustaining agriculture in the High
+Plains will require alternative farming systems that can rebuild soil
+health while remaining profitable (Hansen et al. 2012).
+
+Soil health is critical for sustainable and resilient food production,
+yet evaluating soil health in semiarid climates remains challenging.
+Agriculture impacts soil health through practices such as crop rotation,
+fallowing, tillage, and fertilization, though these effects vary
+depending on environmental factors such as climate and soil type. Soil
+microorganisms are sensitive indicators of changing soil health, and can
+help evaluate the long-term sustainability of land management practices
+(Rodgers, Norton, and Diepen 2021). However, there are gaps in our
+understanding of how soil microbial properties should be interpreted,
+especially in semiarid systems.
+
+This project uses soil data from an experiment on the long-term impacts
+of compost application on soil health and soil microbiology in Wyoming
+High Plains organic wheat systems. Specifially, four rates of compost
+was applied to small plots in a randomized complete block design in
+either 2016 or 2021. In contrast to fresh manure or chemical
+fertilizers, composted manure is made of concentrated, stabilized
+nutrients and carbon that release slowly over time and improve soil
+physical properties (Larney et al. 2006). This includes data on soil
+physical properties (such as aggregate stability and bulk density), soil
+chemical properties (such as total organic matter, labile carbon and
+nitrogen pools, and pH) and soil microbiology (enzyme activity,
+microbial biomass, and microbial community composition). I aim to use
+regression analysis to evaluate the relationships between compost rate
+and soil properties. However, many of the variables do not meet the
+regression assumptions. Therefore, this project focuses on cleaning and
+tidying my dataset, testing the regression assumptions on each variable,
+transforming the data to meet those assumptions, and finally visualizing
+the data. Ultimately, quantifying soil health benefits over many years
+could help growers work towards building the long-term health of their
+soil, and could guide efforts to protect soils and create an
+agricultural system resistant in the face of climate change and land
+degradation.
+
+\#Load Packages
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(MASS)}
+\FunctionTok{library}\NormalTok{(readxl)}
+\FunctionTok{library}\NormalTok{(writexl)}
+\FunctionTok{library}\NormalTok{(patchwork)}
+\FunctionTok{library}\NormalTok{(ggpubr)}
+\FunctionTok{library}\NormalTok{(ggbiplot)}
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\#Import Data
+
+\#Clean Up Data
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#merge the sheets}
+\NormalTok{OREI\_all }\OtherTok{\textless{}{-}}\NormalTok{ OREI\_treatments }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(OREI\_soil, }\AttributeTok{by =} \StringTok{\textquotesingle{}Sample\_ID\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(OREI\_enzymes, }\AttributeTok{by =} \StringTok{\textquotesingle{}Sample\_ID\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(OREI\_PLFA, }\AttributeTok{by =} \StringTok{\textquotesingle{}Sample\_ID\textquotesingle{}}\NormalTok{)}
+
+\NormalTok{OREI\_all }\OtherTok{\textless{}{-}}\NormalTok{ OREI\_all }\SpecialCharTok{\%\textgreater{}\%} 
+  
+\CommentTok{\#remove fallow phase and chemical fertilized plots}
+  \FunctionTok{filter}\NormalTok{(Rotation }\SpecialCharTok{==} \StringTok{"wheat"}\NormalTok{, Treatment }\SpecialCharTok{!=} \StringTok{"fertilizer"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  
+\CommentTok{\#remove unwanted variables}
+\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{PER1, }\SpecialCharTok{{-}}\NormalTok{ID, }\SpecialCharTok{{-}}\NormalTok{InorganicC, }\SpecialCharTok{{-}}\NormalTok{Treatment, }\SpecialCharTok{{-}}\NormalTok{Compost\_Rate, }
+         \SpecialCharTok{{-}}\NormalTok{Crop, }\SpecialCharTok{{-}}\NormalTok{Rotation, }\SpecialCharTok{{-}}\NormalTok{H2O, }\SpecialCharTok{{-}}\NormalTok{BulkDensity) }
+
+\CommentTok{\#separate into the two groups}
+\NormalTok{OREI\_2016 }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(OREI\_all, Compost\_Year }\SpecialCharTok{!=} \StringTok{"2020"}\NormalTok{)}
+\NormalTok{OREI\_2020 }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(OREI\_all, Compost\_Year }\SpecialCharTok{!=} \StringTok{"2016"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{remove-outliers}{%
+\section{Remove Outliers}\label{remove-outliers}}
+
+Outliers can skew a regression, so first I'll remove any outliers from
+each variable using the outlierKB function.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#I ran this function on each variable in both OREI\_2016 and OREI\_2020, and removed outliers.}
+\FunctionTok{source}\NormalTok{(}\StringTok{"http://goo.gl/UUyEzD"}\NormalTok{)}
+  \CommentTok{\#outlierKD(OREI\_2020, total\_bacteria)}
+
+\CommentTok{\#OREI\_2016, removed outliers from: yield, NO3, PMN, DON, MBC, CBH, PHOS, NAG, actino,  gram\_pos, AMF, sapro\_fungi, total\_MB, total\_fungi}
+\CommentTok{\#OREI\_2020, removed outliers from: NO3, protein, MBC, MBN, SOC, N, NAG, BX, AG, SUL}
+
+\CommentTok{\#save no\_outlier file to disk}
+\CommentTok{\#write\_xlsx(OREI\_2020, "OREI\_2020\_no\_outliers.xlsx")}
+\CommentTok{\#write\_xlsx(OREI\_2016, "OREI\_2016\_no\_outliers.xlsx")}
+
+\CommentTok{\#read in no\_outlier datasets to continue}
+\NormalTok{OREI\_2020 }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{read\_excel}\NormalTok{(}\StringTok{"OREI\_2020\_no\_outliers.xlsx"}\NormalTok{))}
+\NormalTok{OREI\_2016 }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{read\_excel}\NormalTok{(}\StringTok{"OREI\_2016\_no\_outliers.xlsx"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{check-regression-assumptions}{%
+\subsection{CHECK REGRESSION
+ASSUMPTIONS}\label{check-regression-assumptions}}
+
+The four main assumptions of regression analysis are:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Observations are independent.
+\item
+  Normality. The residuals are normally distributed.
+\item
+  Linearity. The relationship between X and Y is linear.
+\item
+  Homoscedasticity. The residuals have constant variance for all values
+  of X.
+\end{enumerate}
+
+\#1. The samples come from randomized plots, so they are independent.
+
+\#2. Check for normality of residuals.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#create an empty list}
+\NormalTok{p.vals }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+
+\CommentTok{\#this loop runs a linear model on compost \textasciitilde{} each variable, evaluates normality with the Shapiro test, and saves the p.value}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{names}\NormalTok{(OREI\_2016[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
+\NormalTok{  mod }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\FunctionTok{get}\NormalTok{(i) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ compost, }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
+\NormalTok{  p.vals[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{shapiro.test}\NormalTok{(mod}\SpecialCharTok{$}\NormalTok{residuals))}\SpecialCharTok{$}\NormalTok{p.value \}}
+
+\CommentTok{\#any variable with p\textgreater{}0.05 has non{-}normal residuals}
+\NormalTok{p.vals}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $Yield
+## [1] 0.9840273
+## 
+## $Tillers
+## [1] 0.4959564
+## 
+## $Heads
+## [1] 0.7077767
+## 
+## $WFPS
+## [1] 0.5932977
+## 
+## $NO3
+## [1] 0.6432678
+## 
+## $PMN
+## [1] 0.4940133
+## 
+## $Porosity
+## [1] 0.5394321
+## 
+## $Protein
+## [1] 0.09652962
+## 
+## $POXC
+## [1] 0.6199739
+## 
+## $DOC
+## [1] 0.9843709
+## 
+## $DON
+## [1] 0.9873995
+## 
+## $PMC
+## [1] 0.2809314
+## 
+## $MBC_fumigated
+## [1] 0.8234193
+## 
+## $MBN_fumigated
+## [1] 0.9491492
+## 
+## $SOC
+## [1] 0.648513
+## 
+## $N
+## [1] 0.09972005
+## 
+## $BG
+## [1] 0.8934904
+## 
+## $CBH
+## [1] 0.3173866
+## 
+## $PHOS
+## [1] 0.02234545
+## 
+## $NAG
+## [1] 0.5288161
+## 
+## $BX
+## [1] 0.2330646
+## 
+## $AG
+## [1] 0.5735598
+## 
+## $SUL
+## [1] 0.6220938
+## 
+## $LAP
+## [1] 0.653469
+## 
+## $actinomycetes
+## [1] 0.613477
+## 
+## $gram_neg
+## [1] 0.1433333
+## 
+## $gram_pos
+## [1] 0.7731213
+## 
+## $AMF
+## [1] 0.6186391
+## 
+## $sapro_fungi
+## [1] 0.5985867
+## 
+## $total_MB
+## [1] 0.7721015
+## 
+## $total_fungi
+## [1] 0.9505337
+## 
+## $total_bacteria
+## [1] 0.1436672
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#OREI\_2020 with non{-}normal: DOC, DON, PHOS}
+\CommentTok{\#OREI\_2016: only PHOS}
+\end{Highlighting}
+\end{Shaded}
+
+\#Transform any non-normal variables.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#this function performs the optimal box\_cox transformation on a variable to make it normal}
+\NormalTok{box\_cox\_transform }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(v) \{}
+  
+\CommentTok{\#calculates the boxcox plot and pulls out lambda}
+\NormalTok{  bc }\OtherTok{\textless{}{-}} \FunctionTok{boxcox}\NormalTok{(v }\SpecialCharTok{\textasciitilde{}}\NormalTok{ compost, }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
+\NormalTok{  lambda }\OtherTok{\textless{}{-}}\NormalTok{ bc}\SpecialCharTok{$}\NormalTok{x[}\FunctionTok{which.max}\NormalTok{(bc}\SpecialCharTok{$}\NormalTok{y)]}
+  
+\CommentTok{\#transforms the data using lambda and saves it}
+\NormalTok{  v }\OtherTok{\textless{}{-}}\NormalTok{ (v}\SpecialCharTok{\^{}}\NormalTok{lambda}\DecValTok{{-}1}\NormalTok{)}\SpecialCharTok{/}\NormalTok{lambda}
+  \FunctionTok{return}\NormalTok{(v) \}}
+
+\CommentTok{\#run box\_cox\_transform on all non{-}normal variables}
+\NormalTok{OREI\_2016}\SpecialCharTok{$}\NormalTok{PHOS }\OtherTok{\textless{}{-}} \FunctionTok{box\_cox\_transform}\NormalTok{(OREI\_2016}\SpecialCharTok{$}\NormalTok{PHOS)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{OREI\_2020}\SpecialCharTok{$}\NormalTok{PHOS }\OtherTok{\textless{}{-}} \FunctionTok{box\_cox\_transform}\NormalTok{(OREI\_2020}\SpecialCharTok{$}\NormalTok{PHOS)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/unnamed-chunk-1-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{OREI\_2020}\SpecialCharTok{$}\NormalTok{DOC }\OtherTok{\textless{}{-}} \FunctionTok{box\_cox\_transform}\NormalTok{(OREI\_2020}\SpecialCharTok{$}\NormalTok{DOC)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/unnamed-chunk-1-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{OREI\_2020}\SpecialCharTok{$}\NormalTok{DON }\OtherTok{\textless{}{-}} \FunctionTok{box\_cox\_transform}\NormalTok{(OREI\_2020}\SpecialCharTok{$}\NormalTok{DON)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/unnamed-chunk-1-4.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#test normality of new data using same loop from above}
+\NormalTok{p.vals.trans }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{names}\NormalTok{(OREI\_2016[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
+\NormalTok{  mod }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\FunctionTok{get}\NormalTok{(i) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ compost, }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
+\NormalTok{  p.vals.trans[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{shapiro.test}\NormalTok{(mod}\SpecialCharTok{$}\NormalTok{residuals))}\SpecialCharTok{$}\NormalTok{p.value \}}
+
+\CommentTok{\#everything is normal now! All p values \textgreater{}0.05}
+\NormalTok{p.vals.trans}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $Yield
+## [1] 0.9840273
+## 
+## $Tillers
+## [1] 0.4959564
+## 
+## $Heads
+## [1] 0.7077767
+## 
+## $WFPS
+## [1] 0.5932977
+## 
+## $NO3
+## [1] 0.6432678
+## 
+## $PMN
+## [1] 0.4940133
+## 
+## $Porosity
+## [1] 0.5394321
+## 
+## $Protein
+## [1] 0.09652962
+## 
+## $POXC
+## [1] 0.6199739
+## 
+## $DOC
+## [1] 0.9843709
+## 
+## $DON
+## [1] 0.9873995
+## 
+## $PMC
+## [1] 0.2809314
+## 
+## $MBC_fumigated
+## [1] 0.8234193
+## 
+## $MBN_fumigated
+## [1] 0.9491492
+## 
+## $SOC
+## [1] 0.648513
+## 
+## $N
+## [1] 0.09972005
+## 
+## $BG
+## [1] 0.8934904
+## 
+## $CBH
+## [1] 0.3173866
+## 
+## $PHOS
+## [1] 0.1282244
+## 
+## $NAG
+## [1] 0.5288161
+## 
+## $BX
+## [1] 0.2330646
+## 
+## $AG
+## [1] 0.5735598
+## 
+## $SUL
+## [1] 0.6220938
+## 
+## $LAP
+## [1] 0.653469
+## 
+## $actinomycetes
+## [1] 0.613477
+## 
+## $gram_neg
+## [1] 0.1433333
+## 
+## $gram_pos
+## [1] 0.7731213
+## 
+## $AMF
+## [1] 0.6186391
+## 
+## $sapro_fungi
+## [1] 0.5985867
+## 
+## $total_MB
+## [1] 0.7721015
+## 
+## $total_fungi
+## [1] 0.9505337
+## 
+## $total_bacteria
+## [1] 0.1436672
+\end{verbatim}
+
+\#3. Check linearity using F-test for lack of fit.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#this function creates a linear and quadratic model for each variable, and then tests whether the two models differ significantly using ANOVA}
+\NormalTok{F\_test }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}
+\NormalTok{  mod }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(x }\SpecialCharTok{\textasciitilde{}}\NormalTok{ compost, }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
+\NormalTok{  reduced}\OtherTok{\textless{}{-}}\FunctionTok{lm}\NormalTok{(x }\SpecialCharTok{\textasciitilde{}}\NormalTok{ compost, }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
+\NormalTok{  full}\OtherTok{\textless{}{-}}\FunctionTok{lm}\NormalTok{(x }\SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(compost,}\DecValTok{2}\NormalTok{), }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{anova}\NormalTok{(reduced, full)}\SpecialCharTok{$}\StringTok{"Pr(\textgreater{}F)"}\NormalTok{)}
+\NormalTok{\}}
+
+\CommentTok{\#use sapply to run this function on each variable}
+
+\NormalTok{F.test}\FloatTok{.2016} \OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{colnames}\NormalTok{(OREI\_2016[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
+\NormalTok{  F.test}\FloatTok{.2016}\NormalTok{[[i]] }\OtherTok{\textless{}{-}} \FunctionTok{F\_test}\NormalTok{(OREI\_2016[[i]]) \}}
+
+\NormalTok{F.test}\FloatTok{.2020} \OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{colnames}\NormalTok{(OREI\_2020[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
+\NormalTok{  F.test}\FloatTok{.2020}\NormalTok{[[i]] }\OtherTok{\textless{}{-}} \FunctionTok{F\_test}\NormalTok{(OREI\_2020[[i]]) \}}
+
+\CommentTok{\#The regression differs significantly from linear if p\textgreater{}0.05}
+\CommentTok{\#For OREI\_2020: DOC, protein, porosity, WFPS differ}
+\CommentTok{\#For OREI\_2016: all good!}
+\end{Highlighting}
+\end{Shaded}
+
+\#\#\#\#\#4. check constancy of residuals (levene test? brown forsythe?)
+look at Liana's code \#\#\#\#
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#library(car)}
+\CommentTok{\#leveneTest(mod, compost)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{visualize-data}{%
+\paragraph{VISUALIZE DATA}\label{visualize-data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{p1 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data=}\NormalTok{ OREI\_2016, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ compost, }\AttributeTok{y =}\NormalTok{ DOC))}\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{\textquotesingle{}lm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{stat\_regline\_equation}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{ (}\AttributeTok{title =} \StringTok{\textquotesingle{}One Year After Compost Application\textquotesingle{}}\NormalTok{, }\AttributeTok{x =} \StringTok{"Compost Rate (Mg/ha)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"DOC (mg/kg)"}\NormalTok{)}
+
+\NormalTok{p2 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data=}\NormalTok{ OREI\_2020, }\FunctionTok{aes}\NormalTok{(compost, DOC)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method=}\StringTok{\textquotesingle{}lm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{stat\_regline\_equation}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{ (}\AttributeTok{title =} \StringTok{\textquotesingle{}Five Years After Compost Application\textquotesingle{}}\NormalTok{, }\AttributeTok{x =} \StringTok{"Compost Rate (Mg/ha)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"DOC (mg/kg)"}\NormalTok{)}
+
+\CommentTok{\#p1 + p2 \#\& scale\_y\_continuous(limits = c(0, 375)) }
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{including-plots}{%
+\subsection{Including Plots}\label{including-plots}}
+
+You can also embed plots, for example:
+
+\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/pressure-1.pdf}
+
+\hypertarget{references}{%
+\section*{References}\label{references}}
+\addcontentsline{toc}{section}{References}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-asseng2015rising}{}}%
+Asseng, Senthold, Frank Ewert, Pierre Martre, Reimund P Rötter, David B
+Lobell, Davide Cammarano, Bruce A Kimball, et al. 2015. {``Rising
+Temperatures Reduce Global Wheat Production.''} \emph{Nature Climate
+Change} 5 (2): 143--47.
+
+\leavevmode\vadjust pre{\hypertarget{ref-hansen2012}{}}%
+Hansen, Neil C, Brett L Allen, R Louis Baumhardt, and Drew J Lyon. 2012.
+{``Research Achievements and Adoption of No-till, Dryland Cropping in
+the Semi-Arid US Great Plains.''} \emph{Field Crops Research} 132:
+196--203.
+
+\leavevmode\vadjust pre{\hypertarget{ref-kaur2015effects}{}}%
+Kaur, Gurpreet, Axel Garcia y Garcia, Urszula Norton, Tomas Persson, and
+Thijs Kelleners. 2015. {``Effects of Cropping Practices on Water-Use and
+Water Productivity of Dryland Winter Wheat in the High Plains Ecoregion
+of Wyoming.''} \emph{Journal of Crop Improvement} 29 (5): 491--517.
+
+\leavevmode\vadjust pre{\hypertarget{ref-larney2006}{}}%
+Larney, Francis J, Dan M Sullivan, Katherine E Buckley, and Bahman
+Eghball. 2006. {``The Role of Composting in Recycling Manure
+Nutrients.''} \emph{Canadian Journal of Soil Science} 86 (4): 597--611.
+
+\leavevmode\vadjust pre{\hypertarget{ref-norton2012loss}{}}%
+Norton, Jay B, Eusebius J Mukhwana, and Urszula Norton. 2012. {``Loss
+and Recovery of Soil Organic Carbon and Nitrogen in a Semiarid
+Agroecosystem.''} \emph{Soil Science Society of America Journal} 76 (2):
+505--14.
+
+\leavevmode\vadjust pre{\hypertarget{ref-rodgers2021effects}{}}%
+Rodgers, Hannah R, Jay B Norton, and Linda TA van Diepen. 2021.
+{``Effects of Semiarid Wheat Agriculture Management Practices on Soil
+Microbial Properties: A Review.''} \emph{Agronomy} 11 (5): 852.
+
+\leavevmode\vadjust pre{\hypertarget{ref-assessment2018fourth}{}}%
+USGCRP, Climate. 2018. {``Fourth National Climate Assessment.''}
+
+\end{CSLReferences}
+
+\end{document}
