@@ -6,7 +6,7 @@ output: pdf_document
 bibliography: preliminary_bibliography.bib
 ---
 
-##This R script is used to clean up and transform soil data to get ready for regression analysis.
+##This R script is used to clean up and transform soil data to perform regression analysis.
 
 # Overview of Goals
 
@@ -34,8 +34,6 @@ library(tidyverse)
 
 #Import Data
 ```{r 2}
-setwd("C:/Users/hanna/Desktop/GRAD PROJECTS/OREI")
-
 #read  files
 OREI_soil <- read_excel("OREI_05.2021.xlsx", sheet = "Soil_Data")
 OREI_treatments <- read_excel("OREI_05.2021.xlsx", sheet = "Treatment_Data_2021")
@@ -136,12 +134,7 @@ for (i in names(OREI_2016[,7:38])) {
 
 p.vals.trans
 
-#everything is normal now! Save again:
-#write_xlsx(OREI_2020, "OREI_2020_normal.xlsx")
-#write_xlsx(OREI_2016, "OREI_2016_normal.xlsx")
-
-OREI_2020 <- as.data.frame(read_excel("OREI_2020_normal.xlsx"))
-OREI_2016 <- as.data.frame(read_excel("OREI_2016_normal.xlsx"))
+#everything is normal now!
 ```
 
 
@@ -166,11 +159,13 @@ for (i in colnames(OREI_2016[,7:38])) {
 #differs: 2020 DOC, protein, porosity, WFPS
 #2016: all good!
 
+```
+
 #####4. check constancy of residuals (levene test? brown forsythe?) look at Liana's code ####
+```{r}
 library(car)
 leveneTest(mod, compost)
 ```
-
 
 
 #### VISUALIZE DATA ####
