@@ -6,7 +6,7 @@ output: pdf_document
 bibliography: preliminary_bibliography.bib
 ---
 
-##This R script is used to clean up and transform soil data to perform regression analysis.
+## This R script is used to clean up and transform soil data to perform regression analysis.
 
 # Overview of Goals
 
@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 #Load Packages
-```{r 1}
+```{r 1, echo=TRUE}
 library(MASS)
 library(readxl)
 library(writexl)
@@ -33,7 +33,7 @@ library(tidyverse)
 ```
 
 #Import Data
-```{r 2}
+```{r 2, include=FALSE}
 #read  files
 OREI_soil <- read_excel("OREI_05.2021.xlsx", sheet = "Soil_Data")
 OREI_treatments <- read_excel("OREI_05.2021.xlsx", sheet = "Treatment_Data_2021")
@@ -53,13 +53,13 @@ OREI_all <- OREI_treatments %>%
   left_join(OREI_PLFA, by = 'Sample_ID')
 
 OREI_all <- OREI_all %>% 
-#remove fallow phase and inorganic fertilized plots
+  
+#remove fallow phase and chemical fertilized plots
   filter(Rotation == "wheat", Treatment != "fertilizer") %>% 
+  
 #remove unwanted variables
  dplyr::select(-PER1, -ID, -InorganicC, -Treatment, -Compost_Rate, 
-         -Crop, -Rotation, -H2O, -BulkDensity) %>% 
-#save compost year as a factor
-  mutate(Compost_Year = as.factor(Compost_Year))
+         -Crop, -Rotation, -H2O, -BulkDensity) 
 
 #separate into the two groups
 OREI_2016 <- subset(OREI_all, Compost_Year != "2020")
@@ -68,33 +68,36 @@ OREI_2020 <- subset(OREI_all, Compost_Year != "2016")
 
 # Remove Outliers
 
-Outliers can skew a regression, so first I'll remove any outliers from each variable.
+Outliers can skew a regression, so first I'll remove any outliers from each variable using the outlierKB function.
 ```{r 4}
-#check each variable for outliers. Run on each variable in both OREI_2016 and OREI_2020
+#I ran this function on each variable in both OREI_2016 and OREI_2020, and removed outliers.
 source("http://goo.gl/UUyEzD")
-outlierKD(OREI_2020, total_bacteria)
+  #outlierKD(OREI_2020, total_bacteria)
 
 #OREI_2016, removed outliers from: yield, NO3, PMN, DON, MBC, CBH, PHOS, NAG, actino,  gram_pos, AMF, sapro_fungi, total_MB, total_fungi
+#OREI_2020, removed outliers from: NO3, protein, MBC, MBN, SOC, N, NAG, BX, AG, SUL
 
-#OREI_2020, removed outliers: NO3, protein, MBC, MBN, SOC, N, NAG, BX, AG, SUL, 
-
-#save no_outlier file to disk, then read it back in for next session
+#save no_outlier file to disk
 #write_xlsx(OREI_2020, "OREI_2020_no_outliers.xlsx")
 #write_xlsx(OREI_2016, "OREI_2016_no_outliers.xlsx")
 
+#read in no_outlier datasets to continue
 OREI_2020 <- as.data.frame(read_excel("OREI_2020_no_outliers.xlsx"))
 OREI_2016 <- as.data.frame(read_excel("OREI_2016_no_outliers.xlsx"))
 ```
 
 ## CHECK REGRESSION ASSUMPTIONS #
+The four main assumptions of regression analysis are:
+
 1. Observations are independent.
-2.Normality. The residuals are normally distributed.
-3. Linear relationship. The relationship between X and Y is linear.
+2. Normality. The residuals are normally distributed.
+3. Linearity. The relationship between X and Y is linear.
 4. Homoscedasticity. The residuals have constant variance for all values of X.
 
+#1. The samples come from randomized plots, so they are independent.
 
-#2. Check for normality of residuals. Transform any non-normal variables.
-```{r}
+#2. Check for normality of residuals.
+```{r 5}
 #create an empty list
 p.vals <- list()
 
@@ -104,11 +107,15 @@ for (i in names(OREI_2016[,7:38])) {
   p.vals[[i]] <- (shapiro.test(mod$residuals))$p.value }
 
 #any variable with p>0.05 has non-normal residuals
+p.vals
 
 #OREI_2020 with non-normal: DOC, DON, PHOS
 #OREI_2016: only PHOS
+```
 
-#this function performs the optimal box_cox transformation
+#Transform any non-normal variables.
+```{r}
+#this function performs the optimal box_cox transformation on a variable to make it normal
 box_cox_transform <- function(v) {
   
 #calculates the boxcox plot and pulls out lambda
@@ -132,15 +139,14 @@ for (i in names(OREI_2016[,7:38])) {
   mod <- lm(get(i) ~ compost, data = OREI_2016)
   p.vals.trans[[i]] <- (shapiro.test(mod$residuals))$p.value }
 
+#everything is normal now! All p values >0.05
 p.vals.trans
-
-#everything is normal now!
 ```
 
 
 #3. Check linearity using F-test for lack of fit.
 ```{r}
-#this function runs a linear and quadratic model for each variable, and tests whether they differ significantly
+#this function creates a linear and quadratic model for each variable, and then tests whether the two models differ significantly using ANOVA
 F_test <- function(x) {
   mod <- lm(x ~ compost, data = OREI_2016)
   reduced<-lm(x ~ compost, data = OREI_2016)
@@ -148,41 +154,45 @@ F_test <- function(x) {
   return(anova(reduced, full)$"Pr(>F)")
 }
 
-#use sapply to run this function on each
+#use sapply to run this function on each variable
 
-p.vals.F.test <- list()
+F.test.2016 <- list()
 
 for (i in colnames(OREI_2016[,7:38])) {
-  p.vals.F.test[[i]] <- F_test(OREI_2016[[i]])
-}
+  F.test.2016[[i]] <- F_test(OREI_2016[[i]]) }
 
-#differs: 2020 DOC, protein, porosity, WFPS
-#2016: all good!
+F.test.2020 <- list()
 
+for (i in colnames(OREI_2020[,7:38])) {
+  F.test.2020[[i]] <- F_test(OREI_2020[[i]]) }
+
+#The regression differs significantly from linear if p>0.05
+#For OREI_2020: DOC, protein, porosity, WFPS differ
+#For OREI_2016: all good!
 ```
 
 #####4. check constancy of residuals (levene test? brown forsythe?) look at Liana's code ####
 ```{r}
-library(car)
-leveneTest(mod, compost)
+#library(car)
+#leveneTest(mod, compost)
 ```
 
 
 #### VISUALIZE DATA ####
 ```{r}
-p1 <- ggplot(data= OREI_normal, aes(x = compost, y = DOC))+
+p1 <- ggplot(data= OREI_2016, aes(x = compost, y = DOC))+
   geom_point() +
   geom_smooth(method = 'lm') +
   stat_regline_equation() +
   labs (title = 'One Year After Compost Application', x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
 
-p2 <- ggplot(data= OREI_normal, aes(compost, DOC)) +
+p2 <- ggplot(data= OREI_2020, aes(compost, DOC)) +
   geom_point() +
   geom_smooth(method='lm') +
   stat_regline_equation() +
   labs (title = 'Five Years After Compost Application', x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
 
-p1 + p2 #& scale_y_continuous(limits = c(0, 375)) 
+#p1 + p2 #& scale_y_continuous(limits = c(0, 375)) 
 ```
 
 
