@@ -6,88 +6,80 @@ output: pdf_document
 bibliography: preliminary_bibliography.bib
 indent: TRUE
 ---
-
 ### This R script is used to clean up and transform soil data to perform regression analysis.
 
-# Overview of Goals
+# Overview of Goals  
+  
+   My research focuses on how soil health and soil microbiology influence long-term sustainability in semiarid wheat systems. Wheat is one of the most important crops worldwide, yet the semiarid landscapes where it is primarily grown are particularly vulnerable to climate change and land degradation [@asseng2015rising; @assessment2018fourth]. In particular, the traditional wheat-fallow system practiced throughout the High Plains ecoregion inefficiently stores water, depletes soil fertility, and has a high potential for erosion, pushing farmers and researchers to search for economical ways to build long-term soil health [@norton2012loss; @kaur2015effects]. Sustaining agriculture in the High Plains will require alternative farming systems that can rebuild soil health while remaining profitable [@hansen2012].  
 
-  My research focuses on how soil health and soil microbiology influence long-term sustainability in semiarid wheat systems. Wheat is one of the most important crops worldwide, yet the semiarid landscapes where it is primarily grown are particularly vulnerable to climate change and land degradation [@asseng2015rising; @assessment2018fourth]. In particular, the traditional wheat-fallow system practiced throughout the High Plains ecoregion inefficiently stores water, depletes soil fertility, and has a high potential for erosion, pushing farmers and researchers to search for economical ways to build long-term soil health [@norton2012loss; @kaur2015effects]. Sustaining agriculture in the High Plains will require alternative farming systems that can rebuild soil health while remaining profitable [@hansen2012].
-
-   Soil health is critical for sustainable and resilient food production, yet evaluating soil health in semiarid climates remains challenging. Agriculture impacts soil health through practices such as crop rotation, fallowing, tillage, and fertilization, though these effects vary depending on environmental factors such as climate and soil type. Soil microorganisms are sensitive indicators of changing soil health, and can help evaluate the long-term sustainability of land management practices [@rodgers2021effects]. However, there are gaps in our understanding of how soil microbial properties should be interpreted, especially in semiarid systems. 
+   Soil health is critical for sustainable and resilient food production, yet evaluating soil health in semiarid climates remains challenging. Agriculture impacts soil health through practices such as crop rotation, fallowing, tillage, and fertilization, though these effects vary depending on environmental factors such as climate and soil type. Soil microorganisms are sensitive indicators of changing soil health, and can help evaluate the long-term sustainability of land management practices [@rodgers2021effects]. However, there are gaps in our understanding of how soil microbial properties should be interpreted, especially in semiarid systems.  
    
-   This project uses soil data from an experiment on the long-term impacts of compost application on soil health and soil microbiology in Wyoming High Plains organic wheat systems. Specifially, four rates of compost was applied 
-to small plots in a randomized complete block design in either 2016 or 2021. In contrast to fresh manure or chemical fertilizers, composted manure is made of concentrated, stabilized nutrients and carbon that release slowly over time and improve soil physical properties [@larney2006]. This includes data on soil physical properties (such as aggregate stability and bulk density), soil chemical properties (such as total organic matter, labile carbon and nitrogen pools, and pH) and soil microbiology (enzyme activity, microbial biomass, and microbial community composition). I aim to use regression analysis to evaluate the relationships between compost rate and soil properties. However, many of the variables do not meet the regression assumptions. Therefore, this project focuses on cleaning and tidying my dataset, testing the regression assumptions on each variable, transforming the data to meet those assumptions, and finally visualizing the data. Ultimately, quantifying soil health benefits over many years could help growers work towards building the long-term health of their soil, and could guide efforts to protect soils and create an agricultural system resistant in the face of climate change and land degradation.
+   This project uses soil data from an experiment on the long-term impacts of compost application on soil health and soil microbiology in Wyoming High Plains organic wheat systems. Specifially, four rates of compost was applied to small plots in a randomized complete block design in either 2016 or 2021. In contrast to fresh manure or chemical fertilizers, composted manure is made of concentrated, stabilized nutrients and carbon that release slowly over time and improve soil physical properties [@larney2006]. This includes data on soil physical properties (such as aggregate stability and bulk density), soil chemical properties (such as total organic matter, labile carbon and nitrogen pools, and pH) and soil microbiology (enzyme activity, microbial biomass, and microbial community composition). I aim to use regression analysis to evaluate the relationships between compost rate and soil properties. However, many of the variables do not meet the regression assumptions. Therefore, this project focuses on cleaning and tidying my dataset, testing the regression assumptions on each variable, transforming the data to meet those assumptions, and finally visualizing the data. Ultimately, quantifying soil health benefits over many years could help growers work towards building the long-term health of their soil, and could guide efforts to protect soils and create an agricultural system resistant in the face of climate change and land degradation.
   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Load Packages
-```{r 1, message=FALSE}
-#library(MASS)
-#library(readxl)
-#library(writexl)
-#library(patchwork)
-#library(ggpubr)
-#library(ggbiplot)
+## Load Packages
+```{r, message=FALSE}
+library(MASS)
+library(readxl)
+library(writexl)
+library(car)
 library(tidyverse)
 ```
 
-#Import Data
-```{r 2, include=FALSE}
-#read  files
+## Import Data
+```{r, warning = F}
+#read in data
 OREI_soil <- read_excel("OREI_05.2021.xlsx", sheet = "Soil_Data")
 OREI_treatments <- read_excel("OREI_05.2021.xlsx", sheet = "Treatment_Data_2021")
 OREI_enzymes <- read_excel("OREI_05.2021.xlsx", sheet = "Enzymes")
 OREI_PLFA <- read_excel("OREI_05.2021.xlsx", sheet = "PLFAs")
-
-#units 'cheat sheet'
-units <- t(read_excel("OREI_05.2021.xlsx", sheet = "Units"))
 ```
 
-#Clean Up Data
-```{r 3}
-#merge the sheets
+## Clean Up Data
+```{r}
+#merge the data
 OREI_all <- OREI_treatments %>% 
   left_join(OREI_soil, by = 'Sample_ID') %>% 
   left_join(OREI_enzymes, by = 'Sample_ID') %>% 
   left_join(OREI_PLFA, by = 'Sample_ID')
 
 OREI_all <- OREI_all %>% 
-  
-#remove fallow phase and chemical fertilized plots
+#remove plots that are fallow or fertilized
   filter(Rotation == "wheat", Treatment != "fertilizer") %>% 
   
 #remove unwanted variables
  dplyr::select(-PER1, -ID, -InorganicC, -Treatment, -Compost_Rate, 
          -Crop, -Rotation, -H2O, -BulkDensity) 
 
-#separate into the two groups
+#separate into two groups by year of compost application
 OREI_2016 <- subset(OREI_all, Compost_Year != "2020")
 OREI_2020 <- subset(OREI_all, Compost_Year != "2016")
 ```
 
-# Remove Outliers
-
+## Remove Outliers
 Outliers can skew a regression, so first I'll remove any outliers from each variable using the outlierKB function.
 ```{r 4}
-#I ran this function on each variable in both OREI_2016 and OREI_2020, and removed outliers.
+#I ran this function on each variable in both OREI_2016 and OREI_2020 to 
+#remove outliers.
 source("http://goo.gl/UUyEzD")
   #outlierKD(OREI_2020, total_bacteria)
 
-#OREI_2016, removed outliers from: yield, NO3, PMN, DON, MBC, CBH, PHOS, NAG, actino,  gram_pos, AMF, sapro_fungi, total_MB, total_fungi
-#OREI_2020, removed outliers from: NO3, protein, MBC, MBN, SOC, N, NAG, BX, AG, SUL
+#save no_outlier data
+  #write_xlsx(OREI_2020, "OREI_2020_no_outliers.xlsx")
+  #write_xlsx(OREI_2016, "OREI_2016_no_outliers.xlsx")
 
-#save no_outlier file to disk
-#write_xlsx(OREI_2020, "OREI_2020_no_outliers.xlsx")
-#write_xlsx(OREI_2016, "OREI_2016_no_outliers.xlsx")
-
-#read in no_outlier datasets to continue
+#read in no_outlier data to continue
 OREI_2020 <- as.data.frame(read_excel("OREI_2020_no_outliers.xlsx"))
 OREI_2016 <- as.data.frame(read_excel("OREI_2016_no_outliers.xlsx"))
 ```
+I removed outliers from:  
+OREI_2016: yield, NO3, PMN, DON, MBC, CBH, PHOS, NAG, actino,  gram_pos, AMF, sapro_fungi, total_MB, total_fungi  
+OREI_2020: NO3, protein, MBC, MBN, SOC, N, NAG, BX, AG, SUL
 
-## CHECK REGRESSION ASSUMPTIONS #
+# Check Regression Assumptions
 The four main assumptions of regression analysis are:
 
 1. Observations are independent.
@@ -95,28 +87,27 @@ The four main assumptions of regression analysis are:
 3. Linearity. The relationship between X and Y is linear.
 4. Homoscedasticity. The residuals have constant variance for all values of X.
 
-#1. The samples come from randomized plots, so they are independent.
+## 1. The samples come from randomized plots, so they are independent.
 
-#2. Check for normality of residuals.
+## 2. Check for normality of residuals.
 ```{r 5}
-#create an empty list
+#Create an empty list
 p.vals <- list()
 
-#this loop runs a linear model on compost ~ each variable, evaluates normality with the Shapiro test, and saves the p.value
+#This loop runs a linear model on compost ~ each variable, 
+#evaluates normality with the Shapiro test, and saves the p value.
 for (i in names(OREI_2016[,7:38])) {
   mod <- lm(get(i) ~ compost, data = OREI_2016)
   p.vals[[i]] <- (shapiro.test(mod$residuals))$p.value }
-
-#any variable with p>0.05 has non-normal residuals
-p.vals
-
-#OREI_2020 with non-normal: DOC, DON, PHOS
-#OREI_2016: only PHOS
 ```
 
-#Transform any non-normal variables.
-```{r}
-#this function performs the optimal box_cox transformation on a variable to make it normal
+The following variables have non-normal residuals (p > 0.05):  
+OREI_2020: DOC, DON, PHOS  
+OREI_2016: PHOS
+
+### Transform the non-normal variables.
+```{r 6, echo = T, results = 'hide', fig.show='hide'}
+#this function performs a box_cox transformation on a variable to make it normal
 box_cox_transform <- function(v) {
   
 #calculates the boxcox plot and pulls out lambda
@@ -135,74 +126,67 @@ OREI_2020$DON <- box_cox_transform(OREI_2020$DON)
 
 #test normality of new data using same loop from above
 p.vals.trans <- list()
-
 for (i in names(OREI_2016[,7:38])) {
   mod <- lm(get(i) ~ compost, data = OREI_2016)
   p.vals.trans[[i]] <- (shapiro.test(mod$residuals))$p.value }
-
-#everything is normal now! All p values >0.05
-p.vals.trans
 ```
+All the variables are normal now! (p > 0.05)
 
-
-#3. Check linearity using F-test for lack of fit.
+## 3. Check linearity using an F-test for lack of fit.
 ```{r}
-#this function creates a linear and quadratic model for each variable, and then tests whether the two models differ significantly using ANOVA
+#This function creates a linear and quadratic model for each variable, 
+#then tests whether the two models differ significantly using ANOVA
 F_test <- function(x) {
   mod <- lm(x ~ compost, data = OREI_2016)
   reduced<-lm(x ~ compost, data = OREI_2016)
   full<-lm(x ~ poly(compost,2), data = OREI_2016)
-  return(anova(reduced, full)$"Pr(>F)")
-}
+  return(anova(reduced, full)$"Pr(>F)") }
 
-#use sapply to run this function on each variable
-
+#run this function on each variable
 F.test.2016 <- list()
-
 for (i in colnames(OREI_2016[,7:38])) {
   F.test.2016[[i]] <- F_test(OREI_2016[[i]]) }
 
 F.test.2020 <- list()
-
 for (i in colnames(OREI_2020[,7:38])) {
   F.test.2020[[i]] <- F_test(OREI_2020[[i]]) }
-
-#The regression differs significantly from linear if p>0.05
-#For OREI_2020: DOC, protein, porosity, WFPS differ
-#For OREI_2016: all good!
 ```
+The regression differs significantly from linear (p>0.05) for:
+OREI_2020: DOC, protein, porosity, WFPS
 
-#####4. check constancy of residuals (levene test? brown forsythe?) look at Liana's code ####
+## 4. Check constancy of residuals with the Levene test.
 ```{r}
-#library(car)
-#leveneTest(mod, compost)
+#Run the levene test (from car package) on each variable,
+#then save the p values
+levene.2016 <- list()
+for (i in colnames(OREI_2016[,7:38])) {
+  result <- leveneTest((OREI_2016[[i]]) ~ as.factor(OREI_2016$compost))
+  levene.2016[[i]] <- result$`Pr(>F)`[1] }
+ 
+levene.2020 <- list()
+for (i in colnames(OREI_2020[,7:38])) {
+  result <- leveneTest((OREI_2020[[i]]) ~ as.factor(OREI_2020$compost))
+  levene.2020[[i]] <- result$`Pr(>F)`[1] }
 ```
+All data passes the levene test! (p < 0.05)
 
-
-#### VISUALIZE DATA ####
-```{r}
+# Visualize Data
+This section needs some work, but for now I'll just print some plots.
+```{r, message = F}
 p1 <- ggplot(data= OREI_2016, aes(x = compost, y = DOC))+
   geom_point() +
   geom_smooth(method = 'lm') +
-  stat_regline_equation() +
-  labs (title = 'One Year After Compost Application', x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
+  labs (title = 'One Year After Compost Application', 
+        x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
 
 p2 <- ggplot(data= OREI_2020, aes(compost, DOC)) +
   geom_point() +
   geom_smooth(method='lm') +
-  stat_regline_equation() +
-  labs (title = 'Five Years After Compost Application', x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
+  labs (title = 'Five Years After Compost Application', 
+        x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
 
-#p1 + p2 #& scale_y_continuous(limits = c(0, 375)) 
-```
-
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+library(patchwork)
+p1 + p2 + scale_y_continuous(limits = c(0, 375)) 
 ```
 
 # References

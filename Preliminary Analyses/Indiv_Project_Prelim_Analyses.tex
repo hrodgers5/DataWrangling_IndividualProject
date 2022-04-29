@@ -178,75 +178,88 @@ soil, and could guide efforts to protect soils and create an
 agricultural system resistant in the face of climate change and land
 degradation.
 
-\#Load Packages
+\hypertarget{load-packages}{%
+\subsection{Load Packages}\label{load-packages}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(MASS)}
 \FunctionTok{library}\NormalTok{(readxl)}
 \FunctionTok{library}\NormalTok{(writexl)}
-\FunctionTok{library}\NormalTok{(patchwork)}
-\FunctionTok{library}\NormalTok{(ggpubr)}
-\FunctionTok{library}\NormalTok{(ggbiplot)}
+\FunctionTok{library}\NormalTok{(car)}
 \FunctionTok{library}\NormalTok{(tidyverse)}
 \end{Highlighting}
 \end{Shaded}
 
-\#Import Data
-
-\#Clean Up Data
+\hypertarget{import-data}{%
+\subsection{Import Data}\label{import-data}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\#merge the sheets}
+\CommentTok{\#read in data}
+\NormalTok{OREI\_soil }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}\StringTok{"OREI\_05.2021.xlsx"}\NormalTok{, }\AttributeTok{sheet =} \StringTok{"Soil\_Data"}\NormalTok{)}
+\NormalTok{OREI\_treatments }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}\StringTok{"OREI\_05.2021.xlsx"}\NormalTok{, }\AttributeTok{sheet =} \StringTok{"Treatment\_Data\_2021"}\NormalTok{)}
+\NormalTok{OREI\_enzymes }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}\StringTok{"OREI\_05.2021.xlsx"}\NormalTok{, }\AttributeTok{sheet =} \StringTok{"Enzymes"}\NormalTok{)}
+\NormalTok{OREI\_PLFA }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}\StringTok{"OREI\_05.2021.xlsx"}\NormalTok{, }\AttributeTok{sheet =} \StringTok{"PLFAs"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{clean-up-data}{%
+\subsection{Clean Up Data}\label{clean-up-data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#merge the data}
 \NormalTok{OREI\_all }\OtherTok{\textless{}{-}}\NormalTok{ OREI\_treatments }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{left\_join}\NormalTok{(OREI\_soil, }\AttributeTok{by =} \StringTok{\textquotesingle{}Sample\_ID\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{left\_join}\NormalTok{(OREI\_enzymes, }\AttributeTok{by =} \StringTok{\textquotesingle{}Sample\_ID\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{left\_join}\NormalTok{(OREI\_PLFA, }\AttributeTok{by =} \StringTok{\textquotesingle{}Sample\_ID\textquotesingle{}}\NormalTok{)}
 
 \NormalTok{OREI\_all }\OtherTok{\textless{}{-}}\NormalTok{ OREI\_all }\SpecialCharTok{\%\textgreater{}\%} 
-  
-\CommentTok{\#remove fallow phase and chemical fertilized plots}
+\CommentTok{\#remove plots that are fallow or fertilized}
   \FunctionTok{filter}\NormalTok{(Rotation }\SpecialCharTok{==} \StringTok{"wheat"}\NormalTok{, Treatment }\SpecialCharTok{!=} \StringTok{"fertilizer"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
   
 \CommentTok{\#remove unwanted variables}
 \NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{PER1, }\SpecialCharTok{{-}}\NormalTok{ID, }\SpecialCharTok{{-}}\NormalTok{InorganicC, }\SpecialCharTok{{-}}\NormalTok{Treatment, }\SpecialCharTok{{-}}\NormalTok{Compost\_Rate, }
          \SpecialCharTok{{-}}\NormalTok{Crop, }\SpecialCharTok{{-}}\NormalTok{Rotation, }\SpecialCharTok{{-}}\NormalTok{H2O, }\SpecialCharTok{{-}}\NormalTok{BulkDensity) }
 
-\CommentTok{\#separate into the two groups}
+\CommentTok{\#separate into two groups by year of compost application}
 \NormalTok{OREI\_2016 }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(OREI\_all, Compost\_Year }\SpecialCharTok{!=} \StringTok{"2020"}\NormalTok{)}
 \NormalTok{OREI\_2020 }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(OREI\_all, Compost\_Year }\SpecialCharTok{!=} \StringTok{"2016"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \hypertarget{remove-outliers}{%
-\section{Remove Outliers}\label{remove-outliers}}
+\subsection{Remove Outliers}\label{remove-outliers}}
 
 Outliers can skew a regression, so first I'll remove any outliers from
 each variable using the outlierKB function.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\#I ran this function on each variable in both OREI\_2016 and OREI\_2020, and removed outliers.}
+\CommentTok{\#I ran this function on each variable in both OREI\_2016 and OREI\_2020 to }
+\CommentTok{\#remove outliers.}
 \FunctionTok{source}\NormalTok{(}\StringTok{"http://goo.gl/UUyEzD"}\NormalTok{)}
   \CommentTok{\#outlierKD(OREI\_2020, total\_bacteria)}
 
-\CommentTok{\#OREI\_2016, removed outliers from: yield, NO3, PMN, DON, MBC, CBH, PHOS, NAG, actino,  gram\_pos, AMF, sapro\_fungi, total\_MB, total\_fungi}
-\CommentTok{\#OREI\_2020, removed outliers from: NO3, protein, MBC, MBN, SOC, N, NAG, BX, AG, SUL}
+\CommentTok{\#save no\_outlier data}
+  \CommentTok{\#write\_xlsx(OREI\_2020, "OREI\_2020\_no\_outliers.xlsx")}
+  \CommentTok{\#write\_xlsx(OREI\_2016, "OREI\_2016\_no\_outliers.xlsx")}
 
-\CommentTok{\#save no\_outlier file to disk}
-\CommentTok{\#write\_xlsx(OREI\_2020, "OREI\_2020\_no\_outliers.xlsx")}
-\CommentTok{\#write\_xlsx(OREI\_2016, "OREI\_2016\_no\_outliers.xlsx")}
-
-\CommentTok{\#read in no\_outlier datasets to continue}
+\CommentTok{\#read in no\_outlier data to continue}
 \NormalTok{OREI\_2020 }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{read\_excel}\NormalTok{(}\StringTok{"OREI\_2020\_no\_outliers.xlsx"}\NormalTok{))}
 \NormalTok{OREI\_2016 }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{read\_excel}\NormalTok{(}\StringTok{"OREI\_2016\_no\_outliers.xlsx"}\NormalTok{))}
 \end{Highlighting}
 \end{Shaded}
 
+I removed outliers from:\\
+OREI\_2016: yield, NO3, PMN, DON, MBC, CBH, PHOS, NAG, actino,
+gram\_pos, AMF, sapro\_fungi, total\_MB, total\_fungi\\
+OREI\_2020: NO3, protein, MBC, MBN, SOC, N, NAG, BX, AG, SUL
+
 \hypertarget{check-regression-assumptions}{%
-\subsection{CHECK REGRESSION
-ASSUMPTIONS}\label{check-regression-assumptions}}
+\section{Check Regression
+Assumptions}\label{check-regression-assumptions}}
 
 The four main assumptions of regression analysis are:
 
@@ -264,135 +277,39 @@ The four main assumptions of regression analysis are:
   of X.
 \end{enumerate}
 
-\#1. The samples come from randomized plots, so they are independent.
+\hypertarget{the-samples-come-from-randomized-plots-so-they-are-independent.}{%
+\subsection{1. The samples come from randomized plots, so they are
+independent.}\label{the-samples-come-from-randomized-plots-so-they-are-independent.}}
 
-\#2. Check for normality of residuals.
+\hypertarget{check-for-normality-of-residuals.}{%
+\subsection{2. Check for normality of
+residuals.}\label{check-for-normality-of-residuals.}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\#create an empty list}
+\CommentTok{\#Create an empty list}
 \NormalTok{p.vals }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
 
-\CommentTok{\#this loop runs a linear model on compost \textasciitilde{} each variable, evaluates normality with the Shapiro test, and saves the p.value}
+\CommentTok{\#This loop runs a linear model on compost \textasciitilde{} each variable, }
+\CommentTok{\#evaluates normality with the Shapiro test, and saves the p value.}
 \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{names}\NormalTok{(OREI\_2016[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
 \NormalTok{  mod }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\FunctionTok{get}\NormalTok{(i) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ compost, }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
 \NormalTok{  p.vals[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{shapiro.test}\NormalTok{(mod}\SpecialCharTok{$}\NormalTok{residuals))}\SpecialCharTok{$}\NormalTok{p.value \}}
-
-\CommentTok{\#any variable with p\textgreater{}0.05 has non{-}normal residuals}
-\NormalTok{p.vals}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## $Yield
-## [1] 0.9840273
-## 
-## $Tillers
-## [1] 0.4959564
-## 
-## $Heads
-## [1] 0.7077767
-## 
-## $WFPS
-## [1] 0.5932977
-## 
-## $NO3
-## [1] 0.6432678
-## 
-## $PMN
-## [1] 0.4940133
-## 
-## $Porosity
-## [1] 0.5394321
-## 
-## $Protein
-## [1] 0.09652962
-## 
-## $POXC
-## [1] 0.6199739
-## 
-## $DOC
-## [1] 0.9843709
-## 
-## $DON
-## [1] 0.9873995
-## 
-## $PMC
-## [1] 0.2809314
-## 
-## $MBC_fumigated
-## [1] 0.8234193
-## 
-## $MBN_fumigated
-## [1] 0.9491492
-## 
-## $SOC
-## [1] 0.648513
-## 
-## $N
-## [1] 0.09972005
-## 
-## $BG
-## [1] 0.8934904
-## 
-## $CBH
-## [1] 0.3173866
-## 
-## $PHOS
-## [1] 0.02234545
-## 
-## $NAG
-## [1] 0.5288161
-## 
-## $BX
-## [1] 0.2330646
-## 
-## $AG
-## [1] 0.5735598
-## 
-## $SUL
-## [1] 0.6220938
-## 
-## $LAP
-## [1] 0.653469
-## 
-## $actinomycetes
-## [1] 0.613477
-## 
-## $gram_neg
-## [1] 0.1433333
-## 
-## $gram_pos
-## [1] 0.7731213
-## 
-## $AMF
-## [1] 0.6186391
-## 
-## $sapro_fungi
-## [1] 0.5985867
-## 
-## $total_MB
-## [1] 0.7721015
-## 
-## $total_fungi
-## [1] 0.9505337
-## 
-## $total_bacteria
-## [1] 0.1436672
-\end{verbatim}
+The following variables have non-normal residuals (p \textgreater{}
+0.05):\\
+OREI\_2020: DOC, DON, PHOS\\
+OREI\_2016: PHOS
+
+\hypertarget{transform-the-non-normal-variables.}{%
+\subsubsection{Transform the non-normal
+variables.}\label{transform-the-non-normal-variables.}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\#OREI\_2020 with non{-}normal: DOC, DON, PHOS}
-\CommentTok{\#OREI\_2016: only PHOS}
-\end{Highlighting}
-\end{Shaded}
-
-\#Transform any non-normal variables.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\#this function performs the optimal box\_cox transformation on a variable to make it normal}
+\CommentTok{\#this function performs a box\_cox transformation on a variable to make it normal}
 \NormalTok{box\_cox\_transform }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(v) \{}
   
 \CommentTok{\#calculates the boxcox plot and pulls out lambda}
@@ -408,15 +325,11 @@ The four main assumptions of regression analysis are:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/unnamed-chunk-1-1.pdf}
-
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{OREI\_2020}\SpecialCharTok{$}\NormalTok{PHOS }\OtherTok{\textless{}{-}} \FunctionTok{box\_cox\_transform}\NormalTok{(OREI\_2020}\SpecialCharTok{$}\NormalTok{PHOS)}
 \end{Highlighting}
 \end{Shaded}
-
-\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/unnamed-chunk-1-2.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -424,195 +337,123 @@ The four main assumptions of regression analysis are:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/unnamed-chunk-1-3.pdf}
-
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{OREI\_2020}\SpecialCharTok{$}\NormalTok{DON }\OtherTok{\textless{}{-}} \FunctionTok{box\_cox\_transform}\NormalTok{(OREI\_2020}\SpecialCharTok{$}\NormalTok{DON)}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/unnamed-chunk-1-4.pdf}
-
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\#test normality of new data using same loop from above}
 \NormalTok{p.vals.trans }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
-
 \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{names}\NormalTok{(OREI\_2016[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
 \NormalTok{  mod }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\FunctionTok{get}\NormalTok{(i) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ compost, }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
 \NormalTok{  p.vals.trans[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{shapiro.test}\NormalTok{(mod}\SpecialCharTok{$}\NormalTok{residuals))}\SpecialCharTok{$}\NormalTok{p.value \}}
-
-\CommentTok{\#everything is normal now! All p values \textgreater{}0.05}
-\NormalTok{p.vals.trans}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## $Yield
-## [1] 0.9840273
-## 
-## $Tillers
-## [1] 0.4959564
-## 
-## $Heads
-## [1] 0.7077767
-## 
-## $WFPS
-## [1] 0.5932977
-## 
-## $NO3
-## [1] 0.6432678
-## 
-## $PMN
-## [1] 0.4940133
-## 
-## $Porosity
-## [1] 0.5394321
-## 
-## $Protein
-## [1] 0.09652962
-## 
-## $POXC
-## [1] 0.6199739
-## 
-## $DOC
-## [1] 0.9843709
-## 
-## $DON
-## [1] 0.9873995
-## 
-## $PMC
-## [1] 0.2809314
-## 
-## $MBC_fumigated
-## [1] 0.8234193
-## 
-## $MBN_fumigated
-## [1] 0.9491492
-## 
-## $SOC
-## [1] 0.648513
-## 
-## $N
-## [1] 0.09972005
-## 
-## $BG
-## [1] 0.8934904
-## 
-## $CBH
-## [1] 0.3173866
-## 
-## $PHOS
-## [1] 0.1282244
-## 
-## $NAG
-## [1] 0.5288161
-## 
-## $BX
-## [1] 0.2330646
-## 
-## $AG
-## [1] 0.5735598
-## 
-## $SUL
-## [1] 0.6220938
-## 
-## $LAP
-## [1] 0.653469
-## 
-## $actinomycetes
-## [1] 0.613477
-## 
-## $gram_neg
-## [1] 0.1433333
-## 
-## $gram_pos
-## [1] 0.7731213
-## 
-## $AMF
-## [1] 0.6186391
-## 
-## $sapro_fungi
-## [1] 0.5985867
-## 
-## $total_MB
-## [1] 0.7721015
-## 
-## $total_fungi
-## [1] 0.9505337
-## 
-## $total_bacteria
-## [1] 0.1436672
-\end{verbatim}
+All the variables are normal now! (p \textgreater{} 0.05)
 
-\#3. Check linearity using F-test for lack of fit.
+\hypertarget{check-linearity-using-an-f-test-for-lack-of-fit.}{%
+\subsection{3. Check linearity using an F-test for lack of
+fit.}\label{check-linearity-using-an-f-test-for-lack-of-fit.}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\#this function creates a linear and quadratic model for each variable, and then tests whether the two models differ significantly using ANOVA}
+\CommentTok{\#This function creates a linear and quadratic model for each variable, }
+\CommentTok{\#then tests whether the two models differ significantly using ANOVA}
 \NormalTok{F\_test }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}
 \NormalTok{  mod }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(x }\SpecialCharTok{\textasciitilde{}}\NormalTok{ compost, }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
 \NormalTok{  reduced}\OtherTok{\textless{}{-}}\FunctionTok{lm}\NormalTok{(x }\SpecialCharTok{\textasciitilde{}}\NormalTok{ compost, }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
 \NormalTok{  full}\OtherTok{\textless{}{-}}\FunctionTok{lm}\NormalTok{(x }\SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(compost,}\DecValTok{2}\NormalTok{), }\AttributeTok{data =}\NormalTok{ OREI\_2016)}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{anova}\NormalTok{(reduced, full)}\SpecialCharTok{$}\StringTok{"Pr(\textgreater{}F)"}\NormalTok{)}
-\NormalTok{\}}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{anova}\NormalTok{(reduced, full)}\SpecialCharTok{$}\StringTok{"Pr(\textgreater{}F)"}\NormalTok{) \}}
 
-\CommentTok{\#use sapply to run this function on each variable}
-
+\CommentTok{\#run this function on each variable}
 \NormalTok{F.test}\FloatTok{.2016} \OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
-
 \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{colnames}\NormalTok{(OREI\_2016[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
 \NormalTok{  F.test}\FloatTok{.2016}\NormalTok{[[i]] }\OtherTok{\textless{}{-}} \FunctionTok{F\_test}\NormalTok{(OREI\_2016[[i]]) \}}
 
 \NormalTok{F.test}\FloatTok{.2020} \OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
-
 \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{colnames}\NormalTok{(OREI\_2020[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
 \NormalTok{  F.test}\FloatTok{.2020}\NormalTok{[[i]] }\OtherTok{\textless{}{-}} \FunctionTok{F\_test}\NormalTok{(OREI\_2020[[i]]) \}}
-
-\CommentTok{\#The regression differs significantly from linear if p\textgreater{}0.05}
-\CommentTok{\#For OREI\_2020: DOC, protein, porosity, WFPS differ}
-\CommentTok{\#For OREI\_2016: all good!}
 \end{Highlighting}
 \end{Shaded}
 
-\#\#\#\#\#4. check constancy of residuals (levene test? brown forsythe?)
-look at Liana's code \#\#\#\#
+The regression differs significantly from linear (p\textgreater0.05)
+for: OREI\_2020: DOC, protein, porosity, WFPS
+
+\hypertarget{check-constancy-of-residuals-with-the-levene-test.}{%
+\subsection{4. Check constancy of residuals with the Levene
+test.}\label{check-constancy-of-residuals-with-the-levene-test.}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\#library(car)}
-\CommentTok{\#leveneTest(mod, compost)}
+\CommentTok{\#Run the levene test (from car package) on each variable,}
+\CommentTok{\#then save the p values}
+\NormalTok{levene}\FloatTok{.2016} \OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{colnames}\NormalTok{(OREI\_2016[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
+\NormalTok{  result }\OtherTok{\textless{}{-}} \FunctionTok{leveneTest}\NormalTok{((OREI\_2016[[i]]) }\SpecialCharTok{\textasciitilde{}} \FunctionTok{as.factor}\NormalTok{(OREI\_2016}\SpecialCharTok{$}\NormalTok{compost))}
+\NormalTok{  levene}\FloatTok{.2016}\NormalTok{[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ result}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Pr(\textgreater{}F)}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] \}}
+ 
+\NormalTok{levene}\FloatTok{.2020} \OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{colnames}\NormalTok{(OREI\_2020[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{38}\NormalTok{])) \{}
+\NormalTok{  result }\OtherTok{\textless{}{-}} \FunctionTok{leveneTest}\NormalTok{((OREI\_2020[[i]]) }\SpecialCharTok{\textasciitilde{}} \FunctionTok{as.factor}\NormalTok{(OREI\_2020}\SpecialCharTok{$}\NormalTok{compost))}
+\NormalTok{  levene}\FloatTok{.2020}\NormalTok{[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ result}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{Pr(\textgreater{}F)}\StringTok{\textasciigrave{}}\NormalTok{[}\DecValTok{1}\NormalTok{] \}}
 \end{Highlighting}
 \end{Shaded}
 
+All data passes the levene test! (p \textless{} 0.05)
+
 \hypertarget{visualize-data}{%
-\paragraph{VISUALIZE DATA}\label{visualize-data}}
+\section{Visualize Data}\label{visualize-data}}
+
+This section needs some work, but for now I'll just print some plots.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{p1 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data=}\NormalTok{ OREI\_2016, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ compost, }\AttributeTok{y =}\NormalTok{ DOC))}\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{\textquotesingle{}lm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{stat\_regline\_equation}\NormalTok{() }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{ (}\AttributeTok{title =} \StringTok{\textquotesingle{}One Year After Compost Application\textquotesingle{}}\NormalTok{, }\AttributeTok{x =} \StringTok{"Compost Rate (Mg/ha)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"DOC (mg/kg)"}\NormalTok{)}
+  \FunctionTok{labs}\NormalTok{ (}\AttributeTok{title =} \StringTok{\textquotesingle{}One Year After Compost Application\textquotesingle{}}\NormalTok{, }
+        \AttributeTok{x =} \StringTok{"Compost Rate (Mg/ha)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"DOC (mg/kg)"}\NormalTok{)}
 
 \NormalTok{p2 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data=}\NormalTok{ OREI\_2020, }\FunctionTok{aes}\NormalTok{(compost, DOC)) }\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
   \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method=}\StringTok{\textquotesingle{}lm\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{stat\_regline\_equation}\NormalTok{() }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{ (}\AttributeTok{title =} \StringTok{\textquotesingle{}Five Years After Compost Application\textquotesingle{}}\NormalTok{, }\AttributeTok{x =} \StringTok{"Compost Rate (Mg/ha)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"DOC (mg/kg)"}\NormalTok{)}
+  \FunctionTok{labs}\NormalTok{ (}\AttributeTok{title =} \StringTok{\textquotesingle{}Five Years After Compost Application\textquotesingle{}}\NormalTok{, }
+        \AttributeTok{x =} \StringTok{"Compost Rate (Mg/ha)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"DOC (mg/kg)"}\NormalTok{)}
 
-\CommentTok{\#p1 + p2 \#\& scale\_y\_continuous(limits = c(0, 375)) }
+\FunctionTok{library}\NormalTok{(patchwork)}
 \end{Highlighting}
 \end{Shaded}
 
-\hypertarget{including-plots}{%
-\subsection{Including Plots}\label{including-plots}}
+\begin{verbatim}
+## 
+## Attaching package: 'patchwork'
+\end{verbatim}
 
-You can also embed plots, for example:
+\begin{verbatim}
+## The following object is masked from 'package:MASS':
+## 
+##     area
+\end{verbatim}
 
-\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/pressure-1.pdf}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{p1 }\SpecialCharTok{+}\NormalTok{ p2 }\SpecialCharTok{+} \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{375}\NormalTok{)) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_smooth()` using formula 'y ~ x'
+\end{verbatim}
+
+\begin{verbatim}
+## `geom_smooth()` using formula 'y ~ x'
+\end{verbatim}
+
+\includegraphics{Indiv_Project_Prelim_Analyses_files/figure-latex/unnamed-chunk-6-1.pdf}
 
 \hypertarget{references}{%
 \section*{References}\label{references}}
