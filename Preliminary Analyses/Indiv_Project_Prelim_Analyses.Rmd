@@ -5,16 +5,16 @@ date: "4/27/2022"
 output: pdf_document
 bibliography: preliminary_bibliography.bib
 indent: TRUE
+toc: TRUE
 ---
 ### This R script is used to clean up and transform soil data to perform regression analysis.
 
 # Overview of Goals  
-  
-   My research focuses on how soil health and soil microbiology influence long-term sustainability in semiarid wheat systems. Wheat is one of the most important crops worldwide, yet the semiarid landscapes where it is primarily grown are particularly vulnerable to climate change and land degradation [@asseng2015rising; @assessment2018fourth]. In particular, the traditional wheat-fallow system practiced throughout the High Plains ecoregion inefficiently stores water, depletes soil fertility, and has a high potential for erosion, pushing farmers and researchers to search for economical ways to build long-term soil health [@norton2012loss; @kaur2015effects]. Sustaining agriculture in the High Plains will require alternative farming systems that can rebuild soil health while remaining profitable [@hansen2012].  
-
-   Soil health is critical for sustainable and resilient food production, yet evaluating soil health in semiarid climates remains challenging. Agriculture impacts soil health through practices such as crop rotation, fallowing, tillage, and fertilization, though these effects vary depending on environmental factors such as climate and soil type. Soil microorganisms are sensitive indicators of changing soil health, and can help evaluate the long-term sustainability of land management practices [@rodgers2021effects]. However, there are gaps in our understanding of how soil microbial properties should be interpreted, especially in semiarid systems.  
    
-   This project uses soil data from an experiment on the long-term impacts of compost application on soil health and soil microbiology in Wyoming High Plains organic wheat systems. Specifially, four rates of compost was applied to small plots in a randomized complete block design in either 2016 or 2021. In contrast to fresh manure or chemical fertilizers, composted manure is made of concentrated, stabilized nutrients and carbon that release slowly over time and improve soil physical properties [@larney2006]. This includes data on soil physical properties (such as aggregate stability and bulk density), soil chemical properties (such as total organic matter, labile carbon and nitrogen pools, and pH) and soil microbiology (enzyme activity, microbial biomass, and microbial community composition). I aim to use regression analysis to evaluate the relationships between compost rate and soil properties. However, many of the variables do not meet the regression assumptions. Therefore, this project focuses on cleaning and tidying my dataset, testing the regression assumptions on each variable, transforming the data to meet those assumptions, and finally visualizing the data. Ultimately, quantifying soil health benefits over many years could help growers work towards building the long-term health of their soil, and could guide efforts to protect soils and create an agricultural system resistant in the face of climate change and land degradation.
+  My research focuses on how soil health and soil microbiology influence long-term sustainability in semiarid wheat systems. Wheat is one of the most important crops worldwide, yet the semiarid landscapes where it is primarily grown are particularly vulnerable to climate change and land degradation [@asseng2015rising]. In particular, the traditional wheat-fallow system practiced throughout the High Plains ecoregion inefficiently stores water, depletes soil fertility, and has a high potential for erosion, pushing farmers and researchers to search for economical ways to build long-term soil health [@norton2012loss; @kaur2015effects]. Soil health is critical for sustainable and resilient food production, yet evaluating soil health in semiarid climates remains challenging. In particular, soil microorganisms are sensitive indicators of changing soil health, and can help evaluate the long-term sustainability of land management practices [@rodgers2021effects]. However, there are gaps in our understanding of how soil microbial properties should be interpreted, especially in semiarid systems.  
+
+   Soil data was collected from an experiment on the long-term impacts of compost application on soil health and soil microbiology in Wyoming High Plains organic wheat systems. Specifically, four rates of compost were applied to 128 small plots in a randomized complete block design in either 2016 or 2021. In contrast to fresh manure or chemical fertilizers, composted manure is made of concentrated, stabilized nutrients and carbon that release slowly over time and improve soil physical properties [@larney2006]. Data was collected on soil physical and chemical properties (such as aggregate stability and bulk density), total and labile organic matter pools, and soil microbiology (enzyme activity, microbial biomass, and microbial community composition). Regression analysis will be used to evaluate the relationships between compost rate and soil properties. Therefore, this project focuses on cleaning the data, testing the regression assumptions on each variable, transforming the data to meet those assumptions, and finally visualizing the data. Ultimately, quantifying soil health benefits over many years could guide efforts to protect soils and create agricultural systems resiliant in the face of climate change and land degradation.
+
   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -39,6 +39,7 @@ OREI_PLFA <- read_excel("OREI_05.2021.xlsx", sheet = "PLFAs")
 ```
 
 ## Clean Up Data
+Here I merge the datasets, filter out the data I need, and separate it into two groups by year of compost application.
 ```{r}
 #merge the data
 OREI_all <- OREI_treatments %>% 
@@ -92,13 +93,26 @@ The four main assumptions of regression analysis are:
 ## 2. Check for normality of residuals.
 ```{r 5}
 #Create an empty list
-p.vals <- list()
+Shapiro.pvals.2016 <- list()
 
 #This loop runs a linear model on compost ~ each variable, 
 #evaluates normality with the Shapiro test, and saves the p value.
 for (i in names(OREI_2016[,7:38])) {
   mod <- lm(get(i) ~ compost, data = OREI_2016)
-  p.vals[[i]] <- (shapiro.test(mod$residuals))$p.value }
+  Shapiro.pvals.2016[[i]] <- (shapiro.test(mod$residuals))$p.value }
+
+#now same thing for OREI_2020
+Shapiro.pvals.2020 <- list()
+for (i in names(OREI_2020[,7:38])) {
+  mod <- lm(get(i) ~ compost, data = OREI_2020)
+  Shapiro.pvals.2020[[i]] <- (shapiro.test(mod$residuals))$p.value }
+
+#print variables with p < 0.05
+as.data.frame(t(as.data.frame(Shapiro.pvals.2016))) %>% 
+  filter(V1 < 0.05)
+
+as.data.frame(t(as.data.frame(Shapiro.pvals.2020))) %>% 
+  filter(V1 < 0.05)
 ```
 
 The following variables have non-normal residuals (p > 0.05):  
@@ -124,11 +138,7 @@ OREI_2020$PHOS <- box_cox_transform(OREI_2020$PHOS)
 OREI_2020$DOC <- box_cox_transform(OREI_2020$DOC)
 OREI_2020$DON <- box_cox_transform(OREI_2020$DON)
 
-#test normality of new data using same loop from above
-p.vals.trans <- list()
-for (i in names(OREI_2016[,7:38])) {
-  mod <- lm(get(i) ~ compost, data = OREI_2016)
-  p.vals.trans[[i]] <- (shapiro.test(mod$residuals))$p.value }
+#test normality of new data using code from above
 ```
 All the variables are normal now! (p > 0.05)
 
@@ -150,9 +160,14 @@ for (i in colnames(OREI_2016[,7:38])) {
 F.test.2020 <- list()
 for (i in colnames(OREI_2020[,7:38])) {
   F.test.2020[[i]] <- F_test(OREI_2020[[i]]) }
+
+#print variables with p < 0.05
+as.data.frame(t(as.data.frame(F.test.2016))) %>% 
+  filter(V1 < 0.05)
+
+as.data.frame(t(as.data.frame(F.test.2020))) %>% 
+  filter(V1 < 0.05)
 ```
-The regression differs significantly from linear (p>0.05) for:
-OREI_2020: DOC, protein, porosity, WFPS
 
 ## 4. Check constancy of residuals with the Levene test.
 ```{r}
