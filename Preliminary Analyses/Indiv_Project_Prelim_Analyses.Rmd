@@ -13,7 +13,7 @@ toc: TRUE
    
   My research focuses on how soil health and soil microbiology influence long-term sustainability in semiarid wheat systems. Wheat is one of the most important crops worldwide, yet the semiarid landscapes where it is primarily grown are particularly vulnerable to climate change and land degradation [@asseng2015rising]. In particular, the traditional wheat-fallow system practiced throughout the High Plains ecoregion inefficiently stores water, depletes soil fertility, and has a high potential for erosion, pushing farmers and researchers to search for economical ways to build long-term soil health [@norton2012loss; @kaur2015effects]. Soil health is critical for sustainable and resilient food production, yet evaluating soil health in semiarid climates remains challenging. In particular, soil microorganisms are sensitive indicators of changing soil health, and can help evaluate the long-term sustainability of land management practices [@rodgers2021effects]. However, there are gaps in our understanding of how soil microbial properties should be interpreted, especially in semiarid systems.  
 
-   Soil data was collected from an experiment on the long-term impacts of compost application on soil health and soil microbiology in Wyoming High Plains organic wheat systems. Specifically, four rates of compost were applied to 128 small plots in a randomized complete block design in either 2016 or 2021. In contrast to fresh manure or chemical fertilizers, composted manure is made of concentrated, stabilized nutrients and carbon that release slowly over time and improve soil physical properties [@larney2006]. Data was collected on soil physical and chemical properties (such as aggregate stability and bulk density), total and labile organic matter pools, and soil microbiology (enzyme activity, microbial biomass, and microbial community composition). Regression analysis will be used to evaluate the relationships between compost rate and soil properties. Therefore, this project focuses on cleaning the data, testing the regression assumptions on each variable, transforming the data to meet those assumptions, and finally visualizing the data. Ultimately, quantifying soil health benefits over many years could guide efforts to protect soils and create agricultural systems resiliant in the face of climate change and land degradation.
+   Soil data was collected from an experiment on the long-term impacts of compost application on soil health and soil microbiology in Wyoming High Plains organic wheat systems. Specifically, four rates of compost were applied to 128 small plots in a randomized complete block design in either 2016 or 2021. In contrast to fresh manure or chemical fertilizers, composted manure is made of concentrated, stabilized nutrients and carbon that release slowly over time and improve soil physical properties [@larney2006]. Data was collected on soil physical and chemical properties (such as aggregate stability and bulk density), total and labile organic matter pools, and soil microbiology (enzyme activity, microbial biomass, and microbial community composition). Regression analysis will be used to evaluate the relationships between compost rate and soil properties. **Therefore, this project focuses on cleaning the data, testing the regression assumptions on each variable, transforming the data to meet those assumptions, and finally visualizing the data.** Ultimately, quantifying soil health benefits over many years could guide efforts to protect soils and create agricultural systems resiliant in the face of climate change and land degradation.
 
   
 ```{r setup, include=FALSE}
@@ -191,17 +191,33 @@ This section needs some work, but for now I'll just print some plots.
 p1 <- ggplot(data= OREI_2016, aes(x = compost, y = DOC))+
   geom_point() +
   geom_smooth(method = 'lm') +
-  labs (title = 'One Year After Compost Application', 
-        x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
+  labs (title = 'One Year After \ Compost Application', 
+        x = "Compost Rate (Mg/ha)", y = "Dissolved Organic Carbon (mg/kg)")
 
 p2 <- ggplot(data= OREI_2020, aes(compost, DOC)) +
   geom_point() +
   geom_smooth(method='lm') +
-  labs (title = 'Five Years After Compost Application', 
-        x = "Compost Rate (Mg/ha)", y = "DOC (mg/kg)")
+  labs (title = 'Five Years After \ Compost Application', 
+        x = "Compost Rate (Mg/ha)", y = "Dissolved Organic Carbon (mg/kg)")
 
 library(patchwork)
-p1 + p2 + scale_y_continuous(limits = c(0, 375)) 
+p1 + p2 + scale_y_continuous(limits = c(0, 300)) 
 ```
+
+#Things I Changed Based on Feedback
+X-included a table of contents
+X-included a bolded goals statement
+-copy and paste code where I run code again
+-make axes the same for last graphs
+-use faceting to make lots of graphs, with R2?
+-overlaying graphs on top of each other, and then color
+X-note what DOC means!
+X-put graph titles into two lines with /
+-summary after graph
+-There were a few times where you make statements such as with outliers and some variables have non normal residuals. I would suggest maybe adding a line of code to show how you came to those conclusions ie. Which(p.vals.trans. <= 0.05). 
+-The titles are a bit long, remember you can use \n to break up your text into multiple lines. 
+-since you have the same information on both y axes you may be able to remove the y label from the second graph. 
+
+
 
 # References
